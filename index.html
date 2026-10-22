@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meu IP & Geolocalização</title>
+  <!-- Leaflet CSS for Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+        <h1>Qual Meu IP?</h1>
+      </div>
+      <p class="subtitle">Consulte seu endereço IP, detalhes de Whois, localização geográfica e mapa em tempo real.</p>
+    </header>
+
+    <div class="search-box">
+      <input type="text" id="ip-input" placeholder="Digite um IP para pesquisar (ex: 8.8.8.8) ou deixe vazio para o seu IP...">
+      <button id="search-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <span>Consultar</span>
+      </button>
+      <button id="my-ip-btn" class="btn-secondary" title="Usar Meu IP">
+        <span>Meu IP</span>
+      </button>
+    </div>
+
+    <!-- IP Cards Section -->
+    <div class="ip-cards-grid">
+      <div class="card ip-card">
+        <div class="card-header">
+          <span class="badge badge-v4">IPv4</span>
+          <h3>Endereço IPv4</h3>
+        </div>
+        <div class="ip-display">
+          <span id="ipv4-address" class="ip-value">Carregando...</span>
+          <button class="copy-btn" data-target="ipv4-address" title="Copiar IPv4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="card ip-card">
+        <div class="card-header">
+          <span class="badge badge-v6">IPv6</span>
+          <h3>Endereço IPv6</h3>
+        </div>
+        <div class="ip-display">
+          <span id="ipv6-address" class="ip-value">Carregando...</span>
+          <button class="copy-btn" data-target="ipv6-address" title="Copiar IPv6">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="main-grid">
+      <!-- Details Card -->
+      <div class="card details-card">
+        <div class="card-header">
+          <h2>Informações e Whois</h2>
+          <span id="ip-type-badge" class="badge">--</span>
+        </div>
+
+        <div id="details-loading" class="loading-spinner">
+          <div class="spinner"></div>
+          <p>Obtendo dados de localização...</p>
+        </div>
+
+        <div id="details-content" class="details-content hidden">
+          <div class="info-group">
+            <span class="info-label">País / Bandeira</span>
+            <span class="info-value">
+              <img id="flag-img" class="flag-icon" src="" alt="Bandeira" />
+              <span id="country-val">-</span>
+            </span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Região / Estado</span>
+            <span id="region-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Cidade</span>
+            <span id="city-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Código Postal / CEP</span>
+            <span id="postal-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Provedor (ISP)</span>
+            <span id="isp-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Organização</span>
+            <span id="org-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">ASN</span>
+            <span id="asn-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Fuso Horário</span>
+            <span id="timezone-val" class="info-value">-</span>
+          </div>
+
+          <div class="info-group">
+            <span class="info-label">Coordenadas</span>
+            <span id="coords-val" class="info-value">-</span>
+          </div>
+        </div>
+
+        <div id="details-error" class="error-msg hidden">
+          Não foi possível carregar os dados para este IP.
+        </div>
+      </div>
+
+      <!-- Map Card -->
+      <div class="card map-card">
+        <div class="card-header">
+          <h2>Localização no Mapa</h2>
+          <span class="map-subtitle">OpenStreetMap & Leaflet.js</span>
+        </div>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- Notification toast -->
+    <div id="toast" class="toast">Texto copiado!</div>
+  </div>
+
+  <!-- Leaflet JS for Map -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="script.js"></script>
+</body>
+</html>
